@@ -17,6 +17,8 @@ dependencies:
   firebase_auth: "^1.0.1"
   cloud_firestore: "^1.0.1"
 
+  pedantic: "^1.11.0"
+
   # https://github.com/edufolly/folly_fields
   folly_fields:
     git:
