@@ -1,0 +1,32 @@
+name: keystone
+description: Aplicação para outorga de recursos hídricos.
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+#  cupertino_icons: ^1.0.2
+  firebase_core: "^1.0.1"
+  firebase_auth: "^1.0.1"
+  cloud_firestore: "^1.0.1"
+
+  # https://github.com/edufolly/folly_fields
+  folly_fields:
+    git:
+      url: git://github.com/edufolly/folly_fields.git
+      rev: 0.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+
+  uses-material-design: true
