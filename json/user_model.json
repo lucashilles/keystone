@@ -1,0 +1,45 @@
+{
+  "name": "User",
+  "languageType": "Dart",
+  "packagePath": "models",
+  "attributes": [
+    {
+      "name": "cpfcnpj",
+      "type": "String",
+      "internalType": "Empty",
+      "internalName": "",
+      "nullAware": "''"
+    },
+    {
+      "name": "email",
+      "type": "String",
+      "internalType": "Empty",
+      "internalName": "",
+      "nullAware": "''"
+    },
+    {
+      "name": "name",
+      "type": "String",
+      "internalType": "Empty",
+      "internalName": "",
+      "nullAware": "''"
+    },
+    {
+      "name": "registerNumber",
+      "type": "String",
+      "internalType": "Empty",
+      "internalName": "",
+      "nullAware": "''"
+    },
+    {
+      "name": "type",
+      "type": "Model",
+      "internalType": "Empty",
+      "internalName": "UserType",
+      "nullAware": ""
+    }
+  ],
+  "searchTerm": "''",
+  "toString": "name",
+  "moreCode": ""
+}
