@@ -23,7 +23,7 @@ dependencies:
   folly_fields:
     git:
       url: git://github.com/edufolly/folly_fields.git
-      rev: 0.1.2
+      rev: 0.1.4
 
 dev_dependencies:
   flutter_test:

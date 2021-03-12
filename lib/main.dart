@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:folly_fields/folly_fields.dart';
 import 'package:keystone/config.dart';
+import 'package:keystone/screens/enterprise_list_screen.dart';
 import 'package:keystone/screens/home_screen.dart';
 import 'package:keystone/screens/register_screen.dart';
 
@@ -32,6 +33,8 @@ class MyApp extends StatelessWidget {
       routes: <String, Widget Function(BuildContext context)>{
         HomeScreen.name: (BuildContext context) => HomeScreen(),
         RegisterScreen.name: (BuildContext context) => RegisterScreen(),
+        EnterpriseListScreen.name: (BuildContext context) =>
+            EnterpriseListScreen(),
       },
       localizationsDelegates: <LocalizationsDelegate<dynamic>>[
         GlobalMaterialLocalizations.delegate,
