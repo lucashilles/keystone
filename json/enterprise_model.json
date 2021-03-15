@@ -1,9 +1,16 @@
 {
-  "name": "User",
+  "name": "Enterprise",
   "languageType": "Dart",
   "packagePath": "keystone/models",
   "idType": "Integer",
   "attributes": [
+    {
+      "name": "city",
+      "type": "String",
+      "internalType": "Empty",
+      "internalName": "",
+      "nullAware": "''"
+    },
     {
       "name": "cpfcnpj",
       "type": "String",
@@ -12,11 +19,39 @@
       "nullAware": "''"
     },
     {
-      "name": "email",
+      "name": "equation",
       "type": "String",
       "internalType": "Empty",
       "internalName": "",
       "nullAware": "''"
+    },
+    {
+      "name": "fantasyName",
+      "type": "String",
+      "internalType": "Empty",
+      "internalName": "",
+      "nullAware": "''"
+    },
+    {
+      "name": "latitude",
+      "type": "String",
+      "internalType": "Empty",
+      "internalName": "",
+      "nullAware": "''"
+    },
+    {
+      "name": "longitude",
+      "type": "String",
+      "internalType": "Empty",
+      "internalName": "",
+      "nullAware": "''"
+    },
+    {
+      "name": "measures",
+      "type": "List",
+      "internalType": "Model",
+      "internalName": "Measurement",
+      "nullAware": ""
     },
     {
       "name": "name",
@@ -26,35 +61,28 @@
       "nullAware": "''"
     },
     {
-      "name": "password",
-      "type": "String",
-      "internalType": "Empty",
-      "internalName": "",
-      "nullAware": "''"
-    },
-    {
-      "name": "professionalRegister",
-      "type": "String",
-      "internalType": "Empty",
-      "internalName": "",
-      "nullAware": "''"
-    },
-    {
-      "name": "semaRegister",
-      "type": "String",
-      "internalType": "Empty",
-      "internalName": "",
-      "nullAware": "''"
-    },
-    {
-      "name": "userType",
+      "name": "owner",
       "type": "Model",
       "internalType": "Empty",
-      "internalName": "UserType",
-      "nullAware": "UserTypeModel(value: UserType.UNKNOWN)"
+      "internalName": "User",
+      "nullAware": ""
+    },
+    {
+      "name": "responsible",
+      "type": "Model",
+      "internalType": "Empty",
+      "internalName": "User",
+      "nullAware": ""
+    },
+    {
+      "name": "state",
+      "type": "String",
+      "internalType": "Empty",
+      "internalName": "",
+      "nullAware": "''"
     }
   ],
-  "searchTerm": "email",
-  "toString": "email",
+  "searchTerm": "cpfcnpj",
+  "toString": "cpfcnpj",
   "moreCode": ""
 }

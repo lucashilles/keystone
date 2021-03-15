@@ -14,7 +14,14 @@ class _EnterpriseListScreenState extends State<EnterpriseListScreen> {
       appBar: AppBar(
         title: Text('Empreendimentos'),
       ),
-      body: ListView(),
+      body: ListView(
+        children: <Widget>[
+          ListTile(
+            title: Text('Teste'),
+            subtitle: Text('Teste'),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         child: Icon(Icons.add),

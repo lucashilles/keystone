@@ -1,4 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:folly_fields/fields/cpj_cnpj_field.dart';
@@ -8,6 +9,9 @@ import 'package:folly_fields/fields/password_field.dart';
 import 'package:folly_fields/fields/string_field.dart';
 import 'package:keystone/models/user_model.dart';
 import 'package:keystone/models/user_type_model.dart';
+import 'package:http/http.dart' as http;
+
+import 'enterprise_list_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   static const String name = '/Register';
@@ -29,31 +33,48 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // Passa os dados dos campos para a model
       _formKey.currentState!.save();
 
-      try {
-        // Tenta criar o usuário
-        UserCredential userCredential = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(
-                email: model.email, password: _passwordController.text);
+      http.Response response = await http.post(
+        Uri.parse('http://localhost:8080/api/register'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode(model.toMap()),
+      );
 
-        // TODO: Salva usuário no firestore
+      if (response.statusCode == 204) {
+        await Navigator.of(context)
+            .pushReplacementNamed(EnterpriseListScreen.name);
 
-        // TODO: Navega para a tela de empreendimentos
-
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'weak-password') {
-          print('The password provided is too weak.');
-        } else if (e.code == 'email-already-in-use') {
-          print('The account already exists for that email.');
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(e.toString()),
-          ));
-        }
-      } catch (e) {
-        print(e);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(e.toString()),
-        ));
+        return;
+      } else {
+        // Tela vermelha
       }
+
+      // try {
+      //   // Tenta criar o usuário
+      //   UserCredential userCredential = await FirebaseAuth.instance
+      //       .createUserWithEmailAndPassword(
+      //           email: model.email, password: _passwordController.text);
+      //
+      //   // TODO: Salva usuário no firestore
+      //
+      //   // TODO: Navega para a tela de empreendimentos
+      //
+      // } on FirebaseAuthException catch (e) {
+      //   if (e.code == 'weak-password') {
+      //     print('The password provided is too weak.');
+      //   } else if (e.code == 'email-already-in-use') {
+      //     print('The account already exists for that email.');
+      //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      //       content: Text(e.toString()),
+      //     ));
+      //   }
+      // } catch (e) {
+      //   print(e);
+      //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      //     content: Text(e.toString()),
+      //   ));
+      // }
     }
   }
 
@@ -87,26 +108,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 DropdownField<UserType>(
                   label: 'Tipo de usuário',
-                  initialValue: model.type.value,
+                  initialValue: model.userType.value,
                   items: UserTypeModel.getItems(),
                   onChanged: (UserType? value) {
                     setState(() {
-                      model.type.value = value!;
+                      model.userType.value = value!;
                     });
                   },
-                  onSaved: (UserType? newValue) => model.type.value = newValue!,
+                  onSaved: (UserType? newValue) =>
+                      model.userType.value = newValue!,
                   validator: (UserType? value) =>
                       value == null || value == UserType.UNKNOWN
                           ? 'Selecione uma opção.'
                           : null,
                 ),
                 Visibility(
-                  visible: model.type.value == UserType.ENGINEER,
+                  visible: model.userType.value == UserType.ENGINEER,
                   child: StringField(
-                    enabled: model.type.value == UserType.ENGINEER,
+                    enabled: model.userType.value == UserType.ENGINEER,
                     label: 'CREA',
-                    initialValue: model.registerNumber,
-                    onSaved: (String value) => model.registerNumber = value,
+                    initialValue: model.professionalRegister,
+                    onSaved: (String value) =>
+                        model.professionalRegister = value,
+                    validator: (String value) =>
+                        value.isEmpty ? 'Informe o seu registro.' : null,
+                  ),
+                ),
+                Visibility(
+                  visible: model.userType.value == UserType.ENGINEER,
+                  child: StringField(
+                    enabled: model.userType.value == UserType.ENGINEER,
+                    label: 'Registro SEMA',
+                    initialValue: model.semaRegister,
+                    onSaved: (String value) => model.semaRegister = value,
                     validator: (String value) =>
                         value.isEmpty ? 'Informe o seu registro.' : null,
                   ),
@@ -114,6 +148,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 PasswordField(
                   label: 'Senha',
                   controller: _passwordController,
+                  onSaved: (String value) => model.password = value,
                   validator: (String value) =>
                       value.isEmpty ? 'Informe a senha' : null,
                 ),

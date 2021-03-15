@@ -1,12 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:folly_fields/fields/email_field.dart';
 import 'package:folly_fields/fields/password_field.dart';
 import 'package:folly_fields/widgets/waiting_message.dart';
 import 'package:keystone/screens/enterprise_list_screen.dart';
 import 'package:keystone/screens/register_screen.dart';
+import 'package:http/http.dart' as http;
 
 enum LoginStatus {
   INIT,
@@ -31,14 +33,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
-      if (user != null) {
-        Navigator.of(context).pushReplacementNamed(EnterpriseListScreen.name);
-      } else {
-        _controller.add(LoginStatus.FORM);
-      }
-    });
+    _controller.add(LoginStatus.FORM);
+    // FirebaseAuth.instance.authStateChanges().listen((User? user) {
+    //   if (user != null) {
+    //     Navigator.of(context).pushReplacementNamed(EnterpriseListScreen.name);
+    //   } else {
+    //     _controller.add(LoginStatus.FORM);
+    //   }
+    // });
   }
 
   @override
@@ -50,23 +52,43 @@ class _HomeScreenState extends State<HomeScreen> {
   void _login() async {
     if (_formKey.currentState!.validate()) {
       _controller.add(LoginStatus.AUTH);
-      try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-            email: _emailController.text, password: _passwordController.text);
 
+      String encode = base64.encode(
+          '${_emailController.text}:${_passwordController.text}'.codeUnits);
+
+      http.Response response = await http.get(
+        Uri.parse('http://localhost:8080/api/auth'),
+        headers: <String, String>{
+          HttpHeaders.authorizationHeader: 'Basic $encode'
+        },
+      );
+
+      if (response.statusCode == 200) {
         await Navigator.of(context)
             .pushReplacementNamed(EnterpriseListScreen.name);
 
         return;
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'weak-password') {
-          print('The password provided is too weak.');
-        } else if (e.code == 'email-already-in-use') {
-          print('The account already exists for that email.');
-        }
-      } catch (e) {
-        print(e);
+      } else {
+        // Tela vermelha
       }
+
+      // try {
+      //   await FirebaseAuth.instance.signInWithEmailAndPassword(
+      //       email: _emailController.text, password: _passwordController.text);
+      //
+      //   await Navigator.of(context)
+      //       .pushReplacementNamed(EnterpriseListScreen.name);
+      //
+      //   return;
+      // } on FirebaseAuthException catch (e) {
+      //   if (e.code == 'weak-password') {
+      //     print('The password provided is too weak.');
+      //   } else if (e.code == 'email-already-in-use') {
+      //     print('The account already exists for that email.');
+      //   }
+      // } catch (e) {
+      //   print(e);
+      // }
 
       _controller.add(LoginStatus.FORM);
     }

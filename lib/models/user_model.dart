@@ -4,12 +4,14 @@ import 'package:keystone/models/user_type_model.dart';
 ///
 ///
 ///
-class UserModel extends AbstractModel<String> {
+class UserModel extends AbstractModel<int> {
   String cpfcnpj = '';
   String email = '';
   String name = '';
-  String registerNumber = '';
-  UserTypeModel type = UserTypeModel(value: UserType.UNKNOWN);
+  String password = '';
+  String professionalRegister = '';
+  String semaRegister = '';
+  UserTypeModel userType = UserTypeModel(value: UserType.UNKNOWN);
 
   ///
   ///
@@ -23,8 +25,10 @@ class UserModel extends AbstractModel<String> {
       : cpfcnpj = map['cpfcnpj'] ?? '',
         email = map['email'] ?? '',
         name = map['name'] ?? '',
-        registerNumber = map['registerNumber'] ?? '',
-        type = map['type'] != null
+        password = map['password'] ?? '',
+        professionalRegister = map['professionalRegister'] ?? '',
+        semaRegister = map['semaRegister'] ?? '',
+        userType = map['userType'] != null
             ? UserTypeModel.fromJson(map['type'])
             : UserTypeModel(value: UserType.UNKNOWN),
         super.fromJson(map);
@@ -51,9 +55,10 @@ class UserModel extends AbstractModel<String> {
     map['cpfcnpj'] = cpfcnpj;
     map['email'] = email;
     map['name'] = name;
-    map['registerNumber'] = registerNumber;
-    map['type'] = type.toMap();
-
+    map['password'] = password;
+    map['professionalRegister'] = professionalRegister;
+    map['semaRegister'] = semaRegister;
+    map['userType'] = userType.toMap();
     return map;
   }
 
@@ -61,11 +66,11 @@ class UserModel extends AbstractModel<String> {
   ///
   ///
   @override
-  String get searchTerm => '';
+  String get searchTerm => email;
 
   ///
   ///
   ///
   @override
-  String toString() => name;
+  String toString() => email;
 }
