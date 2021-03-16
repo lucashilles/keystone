@@ -7,6 +7,7 @@ import 'package:folly_fields/fields/dropdown_field.dart';
 import 'package:folly_fields/fields/email_field.dart';
 import 'package:folly_fields/fields/password_field.dart';
 import 'package:folly_fields/fields/string_field.dart';
+import 'package:keystone/config.dart';
 import 'package:keystone/models/user_model.dart';
 import 'package:keystone/models/user_type_model.dart';
 import 'package:http/http.dart' as http;
@@ -42,39 +43,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       if (response.statusCode == 204) {
+        String encode =
+            base64.encode('${model.email}:${model.password}'.codeUnits);
+
+        Config().authorization = encode;
+
         await Navigator.of(context)
             .pushReplacementNamed(EnterpriseListScreen.name);
 
         return;
       } else {
-        // Tela vermelha
+        // Tela de erro
       }
-
-      // try {
-      //   // Tenta criar o usuário
-      //   UserCredential userCredential = await FirebaseAuth.instance
-      //       .createUserWithEmailAndPassword(
-      //           email: model.email, password: _passwordController.text);
-      //
-      //   // TODO: Salva usuário no firestore
-      //
-      //   // TODO: Navega para a tela de empreendimentos
-      //
-      // } on FirebaseAuthException catch (e) {
-      //   if (e.code == 'weak-password') {
-      //     print('The password provided is too weak.');
-      //   } else if (e.code == 'email-already-in-use') {
-      //     print('The account already exists for that email.');
-      //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      //       content: Text(e.toString()),
-      //     ));
-      //   }
-      // } catch (e) {
-      //   print(e);
-      //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      //     content: Text(e.toString()),
-      //   ));
-      // }
     }
   }
 

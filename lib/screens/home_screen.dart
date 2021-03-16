@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:folly_fields/fields/email_field.dart';
 import 'package:folly_fields/fields/password_field.dart';
 import 'package:folly_fields/widgets/waiting_message.dart';
+import 'package:keystone/config.dart';
 import 'package:keystone/screens/enterprise_list_screen.dart';
 import 'package:keystone/screens/register_screen.dart';
 import 'package:http/http.dart' as http;
@@ -64,6 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
       );
 
       if (response.statusCode == 200) {
+        Config().authorization = encode;
+
         await Navigator.of(context)
             .pushReplacementNamed(EnterpriseListScreen.name);
 

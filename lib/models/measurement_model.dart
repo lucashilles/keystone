@@ -19,7 +19,7 @@ class MeasurementModel extends AbstractModel<int> {
       : measure = map['measure'] ?? 0,
         measureDate = map['measureDate'] != null && map['measureDate'] >= 0
             ? DateTime.fromMillisecondsSinceEpoch(map['measureDate'])
-            : null,
+            : DateTime.now(),
         super.fromJson(map);
 
   ///
