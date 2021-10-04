@@ -9,23 +9,32 @@ environment:
   sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
+  cloud_firestore: ^2.5.3
+  firebase_auth: ^3.1.1
+  firebase_core: ^1.6.0
+
   flutter:
     sdk: flutter
 
-  http: ^0.13.0
-
-  pedantic: ^1.11.0
+  flutter_barcode_scanner: ^2.0.0
+  flutter_speed_dial: ^4.3.0
 
   # https://github.com/edufolly/folly_fields
   folly_fields:
     git:
       url: git://github.com/edufolly/folly_fields.git
-      rev: 0.1.4
+      rev: 0.3.1
+
+  math_expressions: ^2.2.0
+  pdf: ^3.6.0
+  printing: ^5.6.0
+  qr_flutter: ^4.0.0
 
 dev_dependencies:
+  flutter_lints: ^1.0.0
+
   flutter_test:
     sdk: flutter
 
 flutter:
-
   uses-material-design: true

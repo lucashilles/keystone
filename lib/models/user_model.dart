@@ -1,17 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:folly_fields/crud/abstract_model.dart';
-import 'package:keystone/models/user_type_model.dart';
 
 ///
 ///
 ///
-class UserModel extends AbstractModel<int> {
+class UserModel extends AbstractModel<String> {
   String cpfcnpj = '';
   String email = '';
   String name = '';
   String password = '';
-  String professionalRegister = '';
-  String semaRegister = '';
-  UserTypeModel userType = UserTypeModel(value: UserType.UNKNOWN);
+  List<String> enterprises = <String>[];
 
   ///
   ///
@@ -25,12 +23,7 @@ class UserModel extends AbstractModel<int> {
       : cpfcnpj = map['cpfcnpj'] ?? '',
         email = map['email'] ?? '',
         name = map['name'] ?? '',
-        password = map['password'] ?? '',
-        professionalRegister = map['professionalRegister'] ?? '',
-        semaRegister = map['semaRegister'] ?? '',
-        userType = map['userType'] != null
-            ? UserTypeModel.fromJson(map['type'])
-            : UserTypeModel(value: UserType.UNKNOWN),
+        enterprises = map['enterprises'] ?? <String>[],
         super.fromJson(map);
 
   ///
@@ -55,10 +48,7 @@ class UserModel extends AbstractModel<int> {
     map['cpfcnpj'] = cpfcnpj;
     map['email'] = email;
     map['name'] = name;
-    map['password'] = password;
-    map['professionalRegister'] = professionalRegister;
-    map['semaRegister'] = semaRegister;
-    map['userType'] = userType.toMap();
+    map['enterprises'] = enterprises;
     return map;
   }
 
@@ -66,11 +56,11 @@ class UserModel extends AbstractModel<int> {
   ///
   ///
   @override
-  String get searchTerm => email;
+  String get searchTerm => name;
 
   ///
   ///
   ///
   @override
-  String toString() => email;
+  String toString() => name;
 }

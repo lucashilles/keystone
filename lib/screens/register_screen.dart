@@ -1,20 +1,17 @@
-import 'dart:convert';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:folly_fields/fields/cpj_cnpj_field.dart';
-import 'package:folly_fields/fields/dropdown_field.dart';
 import 'package:folly_fields/fields/email_field.dart';
 import 'package:folly_fields/fields/password_field.dart';
 import 'package:folly_fields/fields/string_field.dart';
-import 'package:keystone/config.dart';
 import 'package:keystone/models/user_model.dart';
-import 'package:keystone/models/user_type_model.dart';
-import 'package:http/http.dart' as http;
 
-import 'enterprise_list_screen.dart';
+import 'package:keystone/screens/enterprise_list_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({Key? key}) : super(key: key);
   static const String name = '/Register';
 
   @override
@@ -29,31 +26,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   UserModel model = UserModel();
 
-  void _register(BuildContext context) async {
+  Future<void> _register(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       // Passa os dados dos campos para a model
       _formKey.currentState!.save();
 
-      http.Response response = await http.post(
-        Uri.parse('http://localhost:8080/api/register'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: json.encode(model.toMap()),
-      );
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+                email: model.email, password: model.password);
 
-      if (response.statusCode == 204) {
-        String encode =
-            base64.encode('${model.email}:${model.password}'.codeUnits);
+        CollectionReference<Map<String, dynamic>> users =
+            FirebaseFirestore.instance.collection('users');
 
-        Config().authorization = encode;
+        await users
+            .doc(userCredential.user?.uid)
+            .set(model.toMap())
+            .then((void value) => print('User Added'))
+            .catchError((dynamic error) => print('Failed to add user: $error'));
 
         await Navigator.of(context)
             .pushReplacementNamed(EnterpriseListScreen.name);
-
-        return;
-      } else {
-        // Tela de erro
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'weak-password') {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Senha muito fraca!')));
+        } else if (e.code == 'email-already-in-use') {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('E-mail já utilizado!')));
+        }
+      } catch (e) {
+        print('Register error: $e');
       }
     }
   }
@@ -61,92 +64,52 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                StringField(
-                  label: 'Nome',
-                  initialValue: model.name,
-                  onSaved: (String value) => model.name = value,
-                  validator: (String value) =>
-                      value.isEmpty ? 'Informe o seu nome.' : null,
-                ),
-                EmailField(
-                  label: 'E-mail',
-                  initialValue: model.email,
-                  onSaved: (String value) => model.email = value,
-                ),
-                CpfCnpjField(
+      appBar: AppBar(
+        title: const Text('Nova conta'),
+      ),
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              StringField(
+                label: 'Nome',
+                initialValue: model.name,
+                onSaved: (String value) => model.name = value,
+                validator: (String value) =>
+                    value.isEmpty ? 'Informe o seu nome.' : null,
+              ),
+              EmailField(
+                label: 'E-mail',
+                initialValue: model.email,
+                onSaved: (String value) => model.email = value,
+              ),
+              CpfCnpjField(
                   label: 'CPF ou CNPJ',
                   initialValue: model.cpfcnpj,
-                  onSaved: (String? newValue) => model.cpfcnpj = newValue!,
-                  required: true,
+                  onSaved: (String? newValue) => model.cpfcnpj = newValue!),
+              PasswordField(
+                label: 'Senha',
+                controller: _passwordController,
+                onSaved: (String value) => model.password = value,
+                validator: (String value) =>
+                    value.isEmpty ? 'Informe a senha' : null,
+              ),
+              PasswordField(
+                label: 'Confirme a senha',
+                controller: _passwordVerifyController,
+                validator: (String value) =>
+                    value.isEmpty ? 'Informe a senha' : null,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ElevatedButton(
+                  onPressed: () => _register(context),
+                  child: const Text('REGISTRAR'),
                 ),
-                DropdownField<UserType>(
-                  label: 'Tipo de usuário',
-                  initialValue: model.userType.value,
-                  items: UserTypeModel.getItems(),
-                  onChanged: (UserType? value) {
-                    setState(() {
-                      model.userType.value = value!;
-                    });
-                  },
-                  onSaved: (UserType? newValue) =>
-                      model.userType.value = newValue!,
-                  validator: (UserType? value) =>
-                      value == null || value == UserType.UNKNOWN
-                          ? 'Selecione uma opção.'
-                          : null,
-                ),
-                Visibility(
-                  visible: model.userType.value == UserType.ENGINEER,
-                  child: StringField(
-                    enabled: model.userType.value == UserType.ENGINEER,
-                    label: 'CREA',
-                    initialValue: model.professionalRegister,
-                    onSaved: (String value) =>
-                        model.professionalRegister = value,
-                    validator: (String value) =>
-                        value.isEmpty ? 'Informe o seu registro.' : null,
-                  ),
-                ),
-                Visibility(
-                  visible: model.userType.value == UserType.ENGINEER,
-                  child: StringField(
-                    enabled: model.userType.value == UserType.ENGINEER,
-                    label: 'Registro SEMA',
-                    initialValue: model.semaRegister,
-                    onSaved: (String value) => model.semaRegister = value,
-                    validator: (String value) =>
-                        value.isEmpty ? 'Informe o seu registro.' : null,
-                  ),
-                ),
-                PasswordField(
-                  label: 'Senha',
-                  controller: _passwordController,
-                  onSaved: (String value) => model.password = value,
-                  validator: (String value) =>
-                      value.isEmpty ? 'Informe a senha' : null,
-                ),
-                PasswordField(
-                  label: 'Confirme a senha',
-                  controller: _passwordVerifyController,
-                  validator: (String value) =>
-                      value.isEmpty ? 'Informe a senha' : null,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: ElevatedButton(
-                    onPressed: () => _register(context),
-                    child: Text('REGISTRAR'),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

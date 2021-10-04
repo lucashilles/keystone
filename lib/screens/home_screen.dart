@@ -1,15 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:folly_fields/fields/email_field.dart';
 import 'package:folly_fields/fields/password_field.dart';
 import 'package:folly_fields/widgets/waiting_message.dart';
-import 'package:keystone/config.dart';
 import 'package:keystone/screens/enterprise_list_screen.dart';
 import 'package:keystone/screens/register_screen.dart';
-import 'package:http/http.dart' as http;
 
 enum LoginStatus {
   INIT,
@@ -18,6 +15,7 @@ enum LoginStatus {
 }
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
   static const String name = '/';
 
   @override
@@ -35,13 +33,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _controller.add(LoginStatus.FORM);
-    // FirebaseAuth.instance.authStateChanges().listen((User? user) {
-    //   if (user != null) {
-    //     Navigator.of(context).pushReplacementNamed(EnterpriseListScreen.name);
-    //   } else {
-    //     _controller.add(LoginStatus.FORM);
-    //   }
-    // });
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user != null) {
+        Navigator.of(context).pushReplacementNamed(EnterpriseListScreen.name);
+      } else {
+        _controller.add(LoginStatus.FORM);
+      }
+    });
   }
 
   @override
@@ -50,125 +48,94 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _login() async {
-    if (_formKey.currentState!.validate()) {
-      _controller.add(LoginStatus.AUTH);
+  Future<void> _login() async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text, password: _passwordController.text);
 
-      String encode = base64.encode(
-          '${_emailController.text}:${_passwordController.text}'.codeUnits);
+      await Navigator.of(context)
+          .pushReplacementNamed(EnterpriseListScreen.name);
 
-      http.Response response = await http.get(
-        Uri.parse('http://localhost:8080/api/auth'),
-        headers: <String, String>{
-          HttpHeaders.authorizationHeader: 'Basic $encode'
-        },
-      );
-
-      if (response.statusCode == 200) {
-        Config().authorization = encode;
-
-        await Navigator.of(context)
-            .pushReplacementNamed(EnterpriseListScreen.name);
-
-        return;
-      } else {
-        // Tela vermelha
-      }
-
-      // try {
-      //   await FirebaseAuth.instance.signInWithEmailAndPassword(
-      //       email: _emailController.text, password: _passwordController.text);
-      //
-      //   await Navigator.of(context)
-      //       .pushReplacementNamed(EnterpriseListScreen.name);
-      //
-      //   return;
-      // } on FirebaseAuthException catch (e) {
-      //   if (e.code == 'weak-password') {
-      //     print('The password provided is too weak.');
-      //   } else if (e.code == 'email-already-in-use') {
-      //     print('The account already exists for that email.');
-      //   }
-      // } catch (e) {
-      //   print(e);
-      // }
-
-      _controller.add(LoginStatus.FORM);
+      return;
+    } catch (e) {
+      print('Login error: $e');
     }
+
+    _controller.add(LoginStatus.FORM);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Colors.blue[800],
       body: SafeArea(
         child: StreamBuilder<LoginStatus>(
-            stream: _controller.stream,
-            initialData: LoginStatus.INIT,
-            builder:
-                (BuildContext context, AsyncSnapshot<LoginStatus> snapshot) {
-              switch (snapshot.data) {
-                case LoginStatus.INIT:
-                  return WaitingMessage();
-                case LoginStatus.AUTH:
-                  return WaitingMessage();
-                case LoginStatus.FORM:
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Center(
-                        child: Card(
-                          margin: EdgeInsets.all(8.0),
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: <Widget>[
-                                EmailField(
-                                  controller: _emailController,
-                                  label: 'E-mail',
-                                ),
-                                PasswordField(
-                                  controller: _passwordController,
-                                  label: 'Senha',
-                                  validator: (String value) =>
-                                      value.isEmpty ? 'Informe a senha!' : null,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: ElevatedButton(
-                                    onPressed: _login,
-                                    // style: ,
-                                    child: Text(
-                                      'Entrar',
-                                      style: TextStyle(fontSize: 22),
-                                    ),
+          stream: _controller.stream,
+          initialData: LoginStatus.INIT,
+          builder: (BuildContext context, AsyncSnapshot<LoginStatus> snapshot) {
+            switch (snapshot.data) {
+              case LoginStatus.INIT:
+                return const WaitingMessage();
+              case LoginStatus.AUTH:
+                return const WaitingMessage();
+              case LoginStatus.FORM:
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Center(
+                      child: Card(
+                        margin: const EdgeInsets.all(8),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: <Widget>[
+                              EmailField(
+                                controller: _emailController,
+                                label: 'E-mail',
+                              ),
+                              PasswordField(
+                                controller: _passwordController,
+                                label: 'Senha',
+                                validator: (String value) =>
+                                    value.isEmpty ? 'Informe a senha!' : null,
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                child: ElevatedButton(
+                                  onPressed: _login,
+                                  // style: ,
+                                  child: const Text(
+                                    'Entrar',
+                                    style: TextStyle(fontSize: 22),
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: TextButton(
-                                    onPressed: () => Navigator.of(context)
-                                        .pushNamed(RegisterScreen.name),
-                                    child: Text(
-                                      'Nova Conta',
-                                      style: TextStyle(fontSize: 22),
-                                    ),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                child: TextButton(
+                                  onPressed: () => Navigator.of(context)
+                                      .pushNamed(RegisterScreen.name),
+                                  child: const Text(
+                                    'Nova Conta',
+                                    style: TextStyle(fontSize: 22),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    ],
-                  );
-                default:
-                  return Container();
-              }
-            }),
+                    ),
+                  ],
+                );
+              default:
+                return Container();
+            }
+          },
+        ),
       ),
     );
   }

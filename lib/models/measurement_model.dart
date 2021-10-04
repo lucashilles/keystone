@@ -5,7 +5,8 @@ import 'package:folly_fields/crud/abstract_model.dart';
 ///
 class MeasurementModel extends AbstractModel<int> {
   double measure = 0;
-  DateTime? measureDate;
+  DateTime? date;
+  String user = '';
 
   ///
   ///
@@ -17,9 +18,7 @@ class MeasurementModel extends AbstractModel<int> {
   ///
   MeasurementModel.fromJson(Map<String, dynamic> map)
       : measure = map['measure'] ?? 0,
-        measureDate = map['measureDate'] != null && map['measureDate'] >= 0
-            ? DateTime.fromMillisecondsSinceEpoch(map['measureDate'])
-            : DateTime.now(),
+        date = map['date'],
         super.fromJson(map);
 
   ///
@@ -43,8 +42,8 @@ class MeasurementModel extends AbstractModel<int> {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = super.toMap();
     map['measure'] = measure;
-    if (measureDate != null) {
-      map['measureDate'] = measureDate?.millisecondsSinceEpoch;
+    if (date != null) {
+      map['date'] = date?.millisecondsSinceEpoch;
     }
     return map;
   }
@@ -53,7 +52,7 @@ class MeasurementModel extends AbstractModel<int> {
   ///
   ///
   @override
-  String get searchTerm => measureDate.toString();
+  String get searchTerm => date.toString();
 
   ///
   ///

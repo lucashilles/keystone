@@ -1,22 +1,28 @@
+import 'package:flutter/cupertino.dart';
 import 'package:folly_fields/crud/abstract_model.dart';
-import 'package:keystone/models/measurement_model.dart';
-import 'package:keystone/models/user_model.dart';
+import 'package:folly_fields/util/decimal.dart';
 
 ///
 ///
 ///
-class EnterpriseModel extends AbstractModel<int> {
+class EnterpriseModel extends AbstractModel<String> {
+  String basin = '';
   String city = '';
-  String cpfcnpj = '';
+  String clientCpfCnpj = '';
+  String clientName = '';
+  double distance = 0;
+  String engineer = '';
+  String engineerCpfCnpj = '';
+  String engineerRegistry = '';
   String equation = '';
-  String fantasyName = '';
   String latitude = '';
   String longitude = '';
-  List<MeasurementModel>? measures;
-  String name = '';
-  UserModel? owner;
-  UserModel? responsible;
+  String owner = '';
+  String password = '';
+  String river = '';
   String state = '';
+  String subBasin = '';
+  bool active = true;
 
   ///
   ///
@@ -27,23 +33,23 @@ class EnterpriseModel extends AbstractModel<int> {
   ///
   ///
   EnterpriseModel.fromJson(Map<String, dynamic> map)
-      : city = map['city'] ?? '',
-        cpfcnpj = map['cpfcnpj'] ?? '',
+      : basin = map['basin'] ?? '',
+        city = map['city'] ?? '',
+        clientCpfCnpj = map['clientCpfCnpj'] ?? '',
+        clientName = map['clientName'] ?? '',
+        distance = map['distance'],
+        engineer = map['engineer'] ?? '',
+        engineerCpfCnpj = map['engineerCpfCnpj'] ?? '',
+        engineerRegistry = map['engineerRegistry'] ?? '',
         equation = map['equation'] ?? '',
-        fantasyName = map['fantasyName'] ?? '',
         latitude = map['latitude'] ?? '',
         longitude = map['longitude'] ?? '',
-        measures = map['measures'] != null
-            ? (map['measures'] as List<dynamic>)
-                .map((dynamic map) => MeasurementModel.fromJson(map))
-                .toList()
-            : null,
-        name = map['name'] ?? '',
-        owner = map['owner'] != null ? UserModel.fromJson(map['owner']) : null,
-        responsible = map['responsible'] != null
-            ? UserModel.fromJson(map['responsible'])
-            : null,
+        owner = map['owner'] ?? '',
+        password = map['password'] ?? '',
+        river = map['river'] ?? '',
         state = map['state'] ?? '',
+        subBasin = map['subBasin'] ?? '',
+        active = map['active'] ?? true,
         super.fromJson(map);
 
   ///
@@ -66,24 +72,23 @@ class EnterpriseModel extends AbstractModel<int> {
   @override
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = super.toMap();
+    map['basin'] = basin;
     map['city'] = city;
-    map['cpfcnpj'] = cpfcnpj;
+    map['clientCpfCnpj'] = clientCpfCnpj;
+    map['clientName'] = clientName;
+    map['distance'] = distance;
+    map['engineer'] = engineer;
+    map['engineerCpfCnpj'] = engineerCpfCnpj;
+    map['engineerRegistry'] = engineerRegistry;
     map['equation'] = equation;
-    map['fantasyName'] = fantasyName;
     map['latitude'] = latitude;
     map['longitude'] = longitude;
-    if (measures != null) {
-      map['measures'] =
-          measures?.map((MeasurementModel model) => model.toMap()).toList();
-    }
-    map['name'] = name;
-    if (owner != null) {
-      map['owner'] = owner?.toMap();
-    }
-    if (responsible != null) {
-      map['responsible'] = responsible?.toMap();
-    }
+    map['owner'] = owner;
+    map['password'] = password;
+    map['river'] = river;
     map['state'] = state;
+    map['subBasin'] = subBasin;
+    map['active'] = active;
     return map;
   }
 
@@ -91,11 +96,11 @@ class EnterpriseModel extends AbstractModel<int> {
   ///
   ///
   @override
-  String get searchTerm => cpfcnpj;
+  String get searchTerm => clientName;
 
   ///
   ///
   ///
   @override
-  String toString() => cpfcnpj;
+  String toString() => clientName;
 }
