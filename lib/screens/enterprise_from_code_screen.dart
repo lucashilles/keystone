@@ -1,15 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:folly_fields/fields/cpj_cnpj_field.dart';
-import 'package:folly_fields/fields/string_field.dart';
-import 'package:folly_fields/fields/decimal_field.dart';
-import 'package:folly_fields/util/decimal.dart';
-import 'package:folly_fields/widgets/waiting_message.dart';
-import 'package:keystone/models/enterprise_model.dart';
-import 'package:keystone/screens/enterprise_list_screen.dart';
+import 'package:keystone/config.dart';
+import 'package:keystone/utils/user_utils.dart';
 import 'package:keystone/widgets/search_enterprise_dialog.dart';
 
 class EnterpriseFromCodeScreen extends StatefulWidget {
@@ -36,7 +28,12 @@ class _EnterpriseFromCodeScreenState extends State<EnterpriseFromCodeScreen> {
       barrierDismissible: true,
       builder: (context) {
         return SearchEnterpriseDialog(
-          enterprisePath: controller.text,
+          enterpriseDoc: Config.getInstance()
+              .firebaseFirestore
+              .collection('enterprises')
+              .doc(controller.text)
+              .get(),
+          onSave: () => UserUtils.addEnterprise(controller.text),
         );
       },
     );

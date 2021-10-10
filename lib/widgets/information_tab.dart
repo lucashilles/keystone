@@ -1,29 +1,40 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:keystone/config.dart';
 import 'package:keystone/models/enterprise_model.dart';
 import 'package:keystone/screens/enterprise_create_screen.dart';
+import 'package:keystone/screens/enterprise_report_screen.dart';
 import 'package:keystone/widgets/config_report_dialog.dart';
 import 'package:keystone/widgets/info_tile.dart';
 import 'package:keystone/widgets/qr_reference.dart';
 
-class EnterpriseInformation extends StatelessWidget {
-  const EnterpriseInformation({Key? key, required this.enterprise})
+class InformationTab extends StatefulWidget {
+  const InformationTab({Key? key, required this.enterprise, this.currentUser})
       : super(key: key);
 
   final EnterpriseModel enterprise;
+  final User? currentUser;
+
+  @override
+  State<InformationTab> createState() => _InformationTabState();
+}
+
+class _InformationTabState extends State<InformationTab> {
+  User? user;
 
   void _editEnterprise(BuildContext context) {
     Navigator.of(context).pushNamed(
       EnterpriseCreateScreen.name,
       arguments: {
         'editing': true,
-        'enterprise': enterprise,
+        'enterprise': widget.enterprise,
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    user = widget.currentUser ?? Config.getInstance().firebaseAuth.currentUser;
     return Container(
       color: Colors.white,
       child: SingleChildScrollView(
@@ -31,40 +42,40 @@ class EnterpriseInformation extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             QrReference(
-              reference: enterprise.id!,
-              password: enterprise.password,
+              reference: widget.enterprise.id!,
+              password: widget.enterprise.password,
             ),
             InfoTile(
               title: 'Rio',
-              subtitle: enterprise.river,
+              subtitle: widget.enterprise.river,
             ),
             InfoTile(
               title: 'Bacia',
-              subtitle: enterprise.basin,
+              subtitle: widget.enterprise.basin,
             ),
             InfoTile(
               title: 'Sub-bacia',
-              subtitle: enterprise.subBasin,
+              subtitle: widget.enterprise.subBasin,
             ),
             InfoTile(
               title: 'Coordenadas',
-              subtitle: '${enterprise.latitude}, ${enterprise.longitude}',
+              subtitle:
+                  '${widget.enterprise.latitude}, ${widget.enterprise.longitude}',
             ),
             InfoTile(
               title: 'Distância da foz (km)',
-              subtitle: enterprise.distance.toString(),
+              subtitle: widget.enterprise.distance.toString(),
             ),
             InfoTile(
               title: 'Município/UF',
-              subtitle: enterprise.city,
+              subtitle: widget.enterprise.city,
             ),
             InfoTile(
               title: 'Curva chave',
-              subtitle: enterprise.equation,
+              subtitle: widget.enterprise.equation,
             ),
             Visibility(
-              visible:
-                  enterprise.owner == FirebaseAuth.instance.currentUser?.uid,
+              visible: widget.enterprise.owner == user!.uid,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
                 child: ElevatedButton(
@@ -80,7 +91,17 @@ class EnterpriseInformation extends StatelessWidget {
                   context: context,
                   barrierDismissible: true,
                   builder: (context) {
-                    return ConfigReportDialog(enterprise: enterprise);
+                    return ConfigReportDialog(
+                      onAccept: (initialDate, finalDate) =>
+                          Navigator.of(context).popAndPushNamed(
+                        EnterpriseReportScreen.name,
+                        arguments: {
+                          'enterprise': widget.enterprise,
+                          'initialDate': initialDate,
+                          'finalDate': finalDate,
+                        },
+                      ),
+                    );
                   },
                 ),
                 child: const Text('RELATÓRIO'),

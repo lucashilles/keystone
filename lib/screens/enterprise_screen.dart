@@ -1,10 +1,9 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:keystone/models/enterprise_model.dart';
+import 'package:keystone/utils/measurement_utils.dart';
 import 'package:keystone/widgets/add_measure_dialog.dart';
-import 'package:keystone/widgets/enterprise_information.dart';
-import 'package:keystone/widgets/enterprise_measurements.dart';
+import 'package:keystone/widgets/information_tab.dart';
+import 'package:keystone/widgets/measurement_list.dart';
 
 class EnterpriseScreen extends StatefulWidget {
   const EnterpriseScreen({Key? key}) : super(key: key);
@@ -43,7 +42,14 @@ class _EnterpriseScreenState extends State<EnterpriseScreen>
     showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (context) => AddMeasureDialog(enterpriseId: enterprise!.id!),
+      builder: (context) => AddMeasureDialog(
+        onAccept: (measure) async {
+          await MeasurementUtils.addMeasure(
+            enterpriseId: enterprise!.id!,
+            measure: measure,
+          );
+        },
+      ),
     );
   }
 
@@ -69,8 +75,8 @@ class _EnterpriseScreenState extends State<EnterpriseScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          EnterpriseMeasurements(enterprise: enterprise!),
-          EnterpriseInformation(enterprise: enterprise!),
+          MeasurementList(enterprise: enterprise!),
+          InformationTab(enterprise: enterprise!),
         ],
       ),
       floatingActionButton: Visibility(

@@ -1,21 +1,14 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:folly_fields/fields/date_field.dart';
-import 'package:folly_fields/fields/decimal_field.dart';
-import 'package:folly_fields/fields/string_field.dart';
-import 'package:folly_fields/widgets/waiting_message.dart';
-import 'package:keystone/models/enterprise_model.dart';
-import 'package:keystone/screens/enterprise_report_screen.dart';
 
 class ConfigReportDialog extends StatefulWidget {
-  const ConfigReportDialog({Key? key, required this.enterprise})
+  const ConfigReportDialog({Key? key, required this.onAccept})
       : super(key: key);
 
   @override
   _ConfigReportDialogState createState() => new _ConfigReportDialogState();
 
-  final EnterpriseModel enterprise;
+  final Function(DateTime initialDate, DateTime finalDate) onAccept;
 }
 
 class _ConfigReportDialogState extends State<ConfigReportDialog> {
@@ -54,15 +47,17 @@ class _ConfigReportDialogState extends State<ConfigReportDialog> {
         TextButton(
           child: Text('Gerar'),
           onPressed: () async {
-            Navigator.of(context).popAndPushNamed(
-              EnterpriseReportScreen.name,
-              arguments: {
-                'enterprise': widget.enterprise,
-                'initialDate': initialDate.date,
-                'finalDate':
-                    finalDate.date!.add(Duration(hours: 23, minutes: 59)),
-              },
-            );
+            widget.onAccept(initialDate.date!,
+                finalDate.date!.add(Duration(hours: 23, minutes: 59)));
+            // Navigator.of(context).popAndPushNamed(
+            //   EnterpriseReportScreen.name,
+            //   arguments: {
+            //     'enterprise': widget.enterprise,
+            //     'initialDate': initialDate.date,
+            //     'finalDate':
+            //         finalDate.date!.add(Duration(hours: 23, minutes: 59)),
+            //   },
+            // );
           },
         ),
       ],

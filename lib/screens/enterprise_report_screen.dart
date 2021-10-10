@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:folly_fields/widgets/waiting_message.dart';
+import 'package:keystone/config.dart';
 import 'package:keystone/models/enterprise_model.dart';
 import 'package:keystone/models/measurement_model.dart';
 import 'package:keystone/utils/equation_utils.dart';
@@ -24,7 +24,8 @@ class _EnterpriseReportScreenState extends State<EnterpriseReportScreen> {
   int lastYear = 0;
 
   Future<List<MeasurementModel>> _getData() async {
-    var querySnapshot = await FirebaseFirestore.instance
+    var querySnapshot = await Config.getInstance()
+        .firebaseFirestore
         .collection('enterprises')
         .doc(enterprise.id)
         .collection('measurements')

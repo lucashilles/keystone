@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:folly_fields/widgets/waiting_message.dart';
+import 'package:keystone/config.dart';
 import 'package:keystone/models/enterprise_model.dart';
 import 'package:keystone/models/user_model.dart';
 import 'package:keystone/screens/enterprise_create_screen.dart';
@@ -23,16 +23,18 @@ class _EnterpriseListScreenState extends State<EnterpriseListScreen> {
   late UserModel user;
 
   final Stream<DocumentSnapshot<Map<String, dynamic>>> _usersStream =
-      FirebaseFirestore.instance
+      Config.getInstance()
+          .firebaseFirestore
           .collection('users')
-          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .doc(Config.getInstance().firebaseAuth.currentUser?.uid)
           .snapshots();
 
   Future<void> _removeEnterprise(EnterpriseModel enterprise) async {
     DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-        await FirebaseFirestore.instance
+        await Config.getInstance()
+            .firebaseFirestore
             .collection('users')
-            .doc(FirebaseAuth.instance.currentUser?.uid)
+            .doc(Config.getInstance().firebaseAuth.currentUser?.uid)
             .get();
 
     var enterpriseList = userSnapshot.data()!['enterprises'] as List<dynamic>;
@@ -40,8 +42,10 @@ class _EnterpriseListScreenState extends State<EnterpriseListScreen> {
 
     await userSnapshot.reference.update({'enterprises': enterpriseList});
 
-    if (enterprise.owner == FirebaseAuth.instance.currentUser?.uid) {
-      await FirebaseFirestore.instance
+    if (enterprise.owner ==
+        Config.getInstance().firebaseAuth.currentUser?.uid) {
+      await Config.getInstance()
+          .firebaseFirestore
           .collection('enterprises')
           .doc(enterprise.id)
           .update({'active': false});
@@ -72,8 +76,7 @@ class _EnterpriseListScreenState extends State<EnterpriseListScreen> {
             context: context,
             barrierDismissible: true,
             builder: (context) => RemoveEnterpriseDialog(
-              enterprise: enterprise,
-              onOk: _removeEnterprise,
+              onAccept: () => _removeEnterprise(enterprise),
             ),
           );
         },
@@ -101,7 +104,8 @@ class _EnterpriseListScreenState extends State<EnterpriseListScreen> {
 
             if (snapshot.hasData) {
               return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream: FirebaseFirestore.instance
+                stream: Config.getInstance()
+                    .firebaseFirestore
                     .collection('enterprises')
                     .where(
                       '__name__',

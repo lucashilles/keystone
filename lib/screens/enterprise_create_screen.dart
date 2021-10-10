@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:folly_fields/fields/cpj_cnpj_field.dart';
 import 'package:folly_fields/fields/string_field.dart';
 import 'package:folly_fields/fields/decimal_field.dart';
 import 'package:folly_fields/util/decimal.dart';
+import 'package:keystone/config.dart';
 import 'package:keystone/models/enterprise_model.dart';
 import 'package:keystone/widgets/config_equation_dialog.dart';
 
@@ -24,7 +24,7 @@ class _EnterpriseCreateScreenState extends State<EnterpriseCreateScreen> {
   EnterpriseModel model = EnterpriseModel();
 
   Future<void> _register(BuildContext context, bool? editing) async {
-    User? currentUser = FirebaseAuth.instance.currentUser;
+    User? currentUser = Config.getInstance().firebaseAuth.currentUser;
 
     if (_formKey.currentState!.validate() && currentUser != null) {
       _formKey.currentState!.save();
@@ -32,18 +32,21 @@ class _EnterpriseCreateScreenState extends State<EnterpriseCreateScreen> {
 
       try {
         if (editing == true) {
-          await FirebaseFirestore.instance
+          await Config.getInstance()
+              .firebaseFirestore
               .collection('enterprises')
               .doc(model.id)
               .update(model.toMap());
         } else {
           DocumentReference<Map<String, dynamic>> enterpriseReference =
-              await FirebaseFirestore.instance
+              await Config.getInstance()
+                  .firebaseFirestore
                   .collection('enterprises')
                   .add(model.toMap());
 
           DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-              await FirebaseFirestore.instance
+              await Config.getInstance()
+                  .firebaseFirestore
                   .collection('users')
                   .doc(currentUser.uid)
                   .get();
