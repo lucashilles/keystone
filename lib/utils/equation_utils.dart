@@ -4,7 +4,7 @@ class EquationUtils {
   late Expression _expression;
 
   EquationUtils({required String equation}) {
-    _expression = Parser().parse(cleanEquationString(equation));
+    _expression = Parser().parse(_cleanEquationString(equation));
   }
 
   double getFlowRate(double level) {
@@ -21,7 +21,11 @@ class EquationUtils {
     );
   }
 
-  String cleanEquationString(String equation) {
+  String _cleanEquationString(String equation) {
+    if (!equation.contains('h') && !equation.contains('H')) {
+      throw StateError('A equação precisa utilizar a variável "h".');
+    }
+
     String cleanedStr = equation.replaceAll(',', '.');
     cleanedStr = cleanedStr.replaceAll('H', 'h');
     return cleanedStr.replaceAll(' ', '');

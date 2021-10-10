@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:folly_fields/fields/email_field.dart';
 import 'package:folly_fields/fields/password_field.dart';
 import 'package:folly_fields/widgets/waiting_message.dart';
+import 'package:keystone/config.dart';
 import 'package:keystone/screens/enterprise_list_screen.dart';
 import 'package:keystone/screens/register_screen.dart';
 
@@ -33,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _controller.add(LoginStatus.FORM);
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+    Config.getInstance().firebaseAuth.authStateChanges().listen((User? user) {
       if (user != null) {
         Navigator.of(context).pushReplacementNamed(EnterpriseListScreen.name);
       } else {
@@ -50,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _login() async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await Config.getInstance().firebaseAuth.signInWithEmailAndPassword(
           email: _emailController.text, password: _passwordController.text);
 
       await Navigator.of(context)

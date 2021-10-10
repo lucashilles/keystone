@@ -1,13 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:folly_fields/fields/date_field.dart';
 import 'package:folly_fields/fields/decimal_field.dart';
 import 'package:folly_fields/fields/string_field.dart';
 import 'package:folly_fields/util/decimal.dart';
-import 'package:folly_fields/widgets/waiting_message.dart';
-import 'package:keystone/models/enterprise_model.dart';
-import 'package:keystone/screens/enterprise_report_screen.dart';
 import 'package:keystone/utils/equation_utils.dart';
 
 class ConfigEquationDialog extends StatefulWidget {
@@ -20,7 +14,7 @@ class ConfigEquationDialog extends StatefulWidget {
 
   final String equation;
 
-  final Function onOk;
+  final Function(String equation) onOk;
 }
 
 class _ConfigEquationDialogState extends State<ConfigEquationDialog> {

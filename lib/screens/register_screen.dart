@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:folly_fields/fields/cpj_cnpj_field.dart';
 import 'package:folly_fields/fields/email_field.dart';
 import 'package:folly_fields/fields/password_field.dart';
 import 'package:folly_fields/fields/string_field.dart';
+import 'package:keystone/config.dart';
 import 'package:keystone/models/user_model.dart';
 
 import 'package:keystone/screens/enterprise_list_screen.dart';
@@ -32,12 +32,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _formKey.currentState!.save();
 
       try {
-        UserCredential userCredential = await FirebaseAuth.instance
+        UserCredential userCredential = await Config.getInstance()
+            .firebaseAuth
             .createUserWithEmailAndPassword(
                 email: model.email, password: model.password);
 
         CollectionReference<Map<String, dynamic>> users =
-            FirebaseFirestore.instance.collection('users');
+            Config.getInstance().firebaseFirestore.collection('users');
 
         await users
             .doc(userCredential.user?.uid)
@@ -116,9 +117,3 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
-
-// String cpfcnpj = '';
-// String email = '';
-// String name = '';
-// String registerNumber = '';
-// UserTypeModel type;

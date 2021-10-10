@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:folly_fields/fields/string_field.dart';
 import 'package:folly_fields/widgets/waiting_message.dart';
@@ -7,14 +6,16 @@ import 'package:keystone/screens/enterprise_list_screen.dart';
 import 'package:keystone/widgets/info_tile.dart';
 
 class SearchEnterpriseDialog extends StatefulWidget {
-  const SearchEnterpriseDialog({Key? key, required this.enterprisePath})
+  const SearchEnterpriseDialog(
+      {Key? key, required this.onSave, required this.enterpriseDoc})
       : super(key: key);
 
   @override
   _SearchEnterpriseDialogState createState() =>
       new _SearchEnterpriseDialogState();
 
-  final String enterprisePath;
+  final Function onSave;
+  final Future<DocumentSnapshot<Map<String, dynamic>>> enterpriseDoc;
 }
 
 class _SearchEnterpriseDialogState extends State<SearchEnterpriseDialog> {
@@ -28,28 +29,10 @@ class _SearchEnterpriseDialogState extends State<SearchEnterpriseDialog> {
 
   List<Widget> actions = [];
 
-  Future<void> _saveEnterprise() async {
-    DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(FirebaseAuth.instance.currentUser?.uid)
-            .get();
-
-    var enterpriseList = userSnapshot.data()!['enterprises'] as List<dynamic>;
-    if (!enterpriseList.contains(widget.enterprisePath)) {
-      enterpriseList.add(widget.enterprisePath);
-    }
-
-    userSnapshot.reference.update({'enterprises': enterpriseList});
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-      future: FirebaseFirestore.instance
-          .collection('enterprises')
-          .doc(widget.enterprisePath)
-          .get(),
+      future: widget.enterpriseDoc,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.data!.exists && snapshot.hasData) {
@@ -101,10 +84,10 @@ class _SearchEnterpriseDialogState extends State<SearchEnterpriseDialog> {
                 child: Text('Adicionar'),
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    _saveEnterprise();
+                    widget.onSave();
                     Navigator.popUntil(context,
                         ModalRoute.withName(EnterpriseListScreen.name));
-                  } else {}
+                  }
                 },
               ),
             ];

@@ -42,9 +42,7 @@ class MeasurementModel extends AbstractModel<int> {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = super.toMap();
     map['measure'] = measure;
-    if (date != null) {
-      map['date'] = date?.millisecondsSinceEpoch;
-    }
+    map['date'] = date;
     return map;
   }
 

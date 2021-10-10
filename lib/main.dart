@@ -16,9 +16,9 @@ void main() async {
   assert(debug = true, 'Enable debug');
 
   WidgetsFlutterBinding.ensureInitialized();
-  FollyFields.start(Config(), debug: debug);
-
   await Firebase.initializeApp();
+
+  FollyFields.start(Config(), debug: debug);
 
   runApp(const MyApp());
 }
